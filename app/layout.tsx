@@ -25,6 +25,8 @@ export default function RootLayout({
         <meta property="og:image" content="/opengraph.png" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:image" content="/opengraph.png" />
+        <meta property="twitter:title" content="Slopsum | on god fr"></meta>
+        <meta property="twitter:description" content="The only Lorem Ipsum alternative you need"></meta>
         <meta property="og:url" content="https://slopsum.com" />
         <title>Slopsum | on god fr</title>
       </head>
