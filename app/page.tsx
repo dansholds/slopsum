@@ -144,7 +144,7 @@ export default function BrainRotGenerator() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div id="0905f583-e38c-4ef0-816f-fa6b343efa24" className="min-h-screen bg-white">
       {/* Top Banner */}
       <div className="w-full bg-blue-50 py-2 text-center text-sm text-blue-600">
         ✨ Introducing: Brain Rot Generator. No cap.
