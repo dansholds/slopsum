@@ -1,11 +1,107 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Copy, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+
+// Helpers
+const PHRASES = Array.from(
+  new Set([
+    "skibidi",
+    "rizz",
+    "fr fr",
+    "sigma",
+    "no cap",
+    "bussin",
+    "sheesh",
+    "based",
+    "sus",
+    "vibing",
+    "caught in 4k",
+    "ratio",
+    "mid",
+    "yeet",
+    "slay",
+    "bet",
+    "finna",
+    "on god",
+    "deadass",
+    "lowkey",
+    "highkey",
+    "cringe",
+    "chad",
+    "L",
+    "W",
+    "glizzy",
+    "bruh moment",
+    "simp",
+    "main character energy",
+    "rent free",
+    "living my best life",
+    "understood the assignment",
+    "it's giving",
+    "ate that",
+    "slept on",
+    "hits different",
+    "down bad",
+    "touch grass",
+    "unhinged",
+    "vibe check",
+    "pressed",
+    "boujee",
+    "drip",
+    "glow up",
+    "sending me",
+    "that's fire",
+    "straight facts",
+    "cap",
+    "banger",
+    "valid",
+    "shook",
+    "goated",
+    "built different",
+    "say less",
+    "slaps",
+    "stan",
+    "tea",
+    "woke",
+    "clout",
+    "fit",
+    "flex",
+    "iconic",
+    "lit",
+    "mood",
+    "periodt",
+    "snatched",
+    "soft launch",
+    "toxic",
+  ]),
+);
+const ENDINGS = [".", "!", "?"];
+
+const clampInput = (value: number, min = 1, max = 10) =>
+  Math.max(min, Math.min(max, value));
+
+const getRandomItem = <T,>(arr: T[]) =>
+  arr[Math.floor(Math.random() * arr.length)];
+
+const generateSentence = () => {
+  const length = 5 + Math.floor(Math.random() * 10);
+  return (
+    Array.from({ length }, (_, i) => {
+      let word = getRandomItem(PHRASES);
+      if (i === 0) word = word.charAt(0).toUpperCase() + word.slice(1);
+      if (i < length - 1 && Math.random() > 0.7) word += ",";
+      return word;
+    }).join(" ") + getRandomItem(ENDINGS)
+  );
+};
+
+const generateParagraph = (sentences: number) =>
+  Array.from({ length: sentences }, generateSentence).join(" ");
 
 export default function BrainRotGenerator() {
   const [paragraphs, setParagraphs] = useState(3);
@@ -13,109 +109,14 @@ export default function BrainRotGenerator() {
   const [generatedText, setGeneratedText] = useState("");
   const { toast } = useToast();
 
-  const phrases = Array.from(
-    new Set([
-      "skibidi",
-      "rizz",
-      "fr fr",
-      "sigma",
-      "no cap",
-      "bussin",
-      "sheesh",
-      "based",
-      "sus",
-      "vibing",
-      "caught in 4k",
-      "ratio",
-      "mid",
-      "yeet",
-      "slay",
-      "bet",
-      "finna",
-      "on god",
-      "deadass",
-      "lowkey",
-      "highkey",
-      "cringe",
-      "chad",
-      "L",
-      "W",
-      "glizzy",
-      "bruh moment",
-      "simp",
-      "main character energy",
-      "rent free",
-      "living my best life",
-      "understood the assignment",
-      "it's giving",
-      "ate that",
-      "slept on",
-      "hits different",
-      "down bad",
-      "touch grass",
-      "unhinged",
-      "vibe check",
-      "pressed",
-      "boujee",
-      "drip",
-      "glow up",
-      "sending me",
-      "that's fire",
-      "straight facts",
-      "cap",
-      "banger",
-      "valid",
-      "shook",
-      "goated",
-      "built different",
-      "say less",
-      "slaps",
-      "stan",
-      "tea",
-      "woke",
-      "clout",
-      "fit",
-      "flex",
-      "iconic",
-      "lit",
-      "mood",
-      "periodt",
-      "snatched",
-      "soft launch",
-      "toxic",
-    ]),
-  );
-
-  const endings = [".", "!", "?"];
-
-  const generateSentence = () => {
-    const length = 5 + Math.floor(Math.random() * 10);
-    const words = Array.from({ length }, (_, i) => {
-      const phrase = phrases[Math.floor(Math.random() * phrases.length)];
-      let word =
-        i === 0 ? phrase.charAt(0).toUpperCase() + phrase.slice(1) : phrase;
-      if (i < length - 1 && Math.random() > 0.7) word += ",";
-      return word;
-    });
-    return (
-      words.join(" ") + endings[Math.floor(Math.random() * endings.length)]
-    );
-  };
-
-  const generateParagraph = () => {
-    return Array.from({ length: sentencesPerParagraph }, generateSentence).join(
-      " ",
-    );
-  };
-
-  const generateText = () => {
-    const output = Array.from({ length: paragraphs }, generateParagraph).join(
-      "\n\n",
-    );
+  const generateText = useCallback(() => {
+    const output = Array.from({ length: paragraphs }, () =>
+      generateParagraph(sentencesPerParagraph),
+    ).join("\n\n");
     setGeneratedText(output);
-  };
+  }, [paragraphs, sentencesPerParagraph]);
 
-  const copyToClipboard = async () => {
+  const copyToClipboard = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(generatedText);
       toast({
@@ -130,20 +131,14 @@ export default function BrainRotGenerator() {
         variant: "destructive",
       });
     }
-  };
-
-  const clampInput = (value: number, min = 1, max = 10) => {
-    return Math.max(min, Math.min(max, value));
-  };
+  }, [generatedText, toast]);
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Top Banner */}
       <div className="w-full bg-blue-50 py-2 text-center text-sm text-blue-600">
         ✨ Introducing: Brain Rot Generator. No cap.
       </div>
 
-      {/* Main Content */}
       <div className="container mx-auto px-4 py-16 max-w-6xl mb-8">
         <div className="text-center">
           <h1 className="text-5xl font-bold text-blue-600 mb-4 font-fira tracking-wider">
@@ -153,7 +148,6 @@ export default function BrainRotGenerator() {
             A sigma lorem ipsum alternative that slaps low key on god fr.
           </p>
 
-          {/* Controls */}
           <div className="flex flex-wrap justify-center gap-4 mb-8">
             <div className="flex items-center gap-2">
               <Input
@@ -185,7 +179,6 @@ export default function BrainRotGenerator() {
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex justify-center gap-4 mb-16">
             <Button
               onClick={generateText}
@@ -207,7 +200,6 @@ export default function BrainRotGenerator() {
             </Button>
           </div>
 
-          {/* Text Preview */}
           <div className="bg-gray-900 rounded-lg p-4 text-left">
             <Textarea
               value={generatedText}
@@ -220,7 +212,6 @@ export default function BrainRotGenerator() {
         </div>
       </div>
 
-      {/* Footer */}
       <footer className="mt-8 pb-8 text-center text-sm text-gray-500">
         Created by{" "}
         <a
