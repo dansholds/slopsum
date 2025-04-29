@@ -1,3 +1,4 @@
+
 import type React from "react";
 import "./globals.css";
 import { Inter, Fira_Sans } from "next/font/google";
@@ -51,8 +52,6 @@ export default function RootLayout({
     </html>
   );
 }
-
-import "./globals.css";
 
 export const metadata = {
   generator: "v0.dev",
