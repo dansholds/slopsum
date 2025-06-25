@@ -1,4 +1,4 @@
-# GitHub Copilot Instructions for the T3 Chat Repository
+# GitHub Copilot Instructions
 
 Hey Copilot! When generating, refactoring, or suggesting TypeScript code, please strictly adhere to the following best practices and conventions. Our goal is to maintain a codebase that is type-safe, readable, maintainable, and consistent.
 
