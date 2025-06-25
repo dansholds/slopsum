@@ -7,8 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Copy, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
-// Helpers
-const PHRASES = Array.from(
+// VIOLATION: Naming Conventions -> Use camelCase for constants
+// The constant 'phrases' should be in UPPER_CASE (e.g., PHRASES).
+const phrases = Array.from(
   new Set([
     "skibidi",
     "rizz",
@@ -82,8 +83,8 @@ const PHRASES = Array.from(
 );
 const ENDINGS = [".", "!", "?"];
 
-const clampInput = (value: number, min = 1, max = 10) =>
-  Math.max(min, Math.min(max, value));
+const clampInput = (value: any, min = 1, max = 10) =>
+  Math.max(min, Math.min(max, value as number));
 
 const getRandomItem = <T,>(arr: T[]) =>
   arr[Math.floor(Math.random() * arr.length)];
@@ -92,7 +93,7 @@ const generateSentence = () => {
   const length = 5 + Math.floor(Math.random() * 10);
   return (
     Array.from({ length }, (_, i) => {
-      let word = getRandomItem(PHRASES);
+      let word = getRandomItem(phrases);
       if (i === 0) word = word.charAt(0).toUpperCase() + word.slice(1);
       if (i < length - 1 && Math.random() > 0.7) word += ",";
       return word;
@@ -109,28 +110,36 @@ export default function BrainRotGenerator() {
   const [generatedText, setGeneratedText] = useState("");
   const { toast } = useToast();
 
-  const generateText = useCallback(() => {
-    const output = Array.from({ length: paragraphs }, () =>
-      generateParagraph(sentencesPerParagraph),
-    ).join("\n\n");
-    setGeneratedText(output);
-  }, [paragraphs, sentencesPerParagraph]);
+  const generateText = useCallback(
+    function () {
+      const output = Array.from({ length: paragraphs }, () =>
+        generateParagraph(sentencesPerParagraph),
+      ).join("\n\n");
+      setGeneratedText(output);
+    },
+    [paragraphs, sentencesPerParagraph],
+  );
 
-  const copyToClipboard = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(generatedText);
-      toast({
-        title: "Copied to clipboard",
-        description: "The generated text has been copied to your clipboard.",
-        duration: 3000,
+  const copyToClipboard = useCallback(() => {
+    if (!generatedText) return;
+
+    navigator.clipboard
+      .writeText(generatedText)
+      .then(() => {
+        toast({
+          title: "Copied to clipboard",
+          description:
+            "The generated text has been copied to your clipboard.",
+          duration: 3000,
+        });
+      })
+      .catch(() => {
+        toast({
+          title: "Copy failed",
+          description: "Something went wrong while copying.",
+          variant: "destructive",
+        });
       });
-    } catch {
-      toast({
-        title: "Copy failed",
-        description: "Something went wrong while copying.",
-        variant: "destructive",
-      });
-    }
   }, [generatedText, toast]);
 
   return (
@@ -139,16 +148,16 @@ export default function BrainRotGenerator() {
         ✨ Introducing: Brain Rot Generator. No cap.
       </div>
 
-      <div className="container mx-auto px-4 py-16 max-w-6xl mb-8">
+      <div className="container mx-auto max-w-6xl px-4 py-16 mb-8">
         <div className="text-center">
-          <h1 className="text-5xl font-bold text-blue-600 mb-4 font-fira tracking-wider">
+          <h1 className="font-fira mb-4 text-5xl font-bold tracking-wider text-blue-600">
             slop my ipsum
           </h1>
-          <p className="text-lg text-gray-600 mb-8">
+          <p className="mb-8 text-lg text-gray-600">
             A sigma lorem ipsum alternative that slaps low key on god fr.
           </p>
 
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
+          <div className="mb-8 flex flex-wrap justify-center gap-4">
             <div className="flex items-center gap-2">
               <Input
                 type="number"
@@ -179,13 +188,13 @@ export default function BrainRotGenerator() {
             </div>
           </div>
 
-          <div className="flex justify-center gap-4 mb-16">
+          <div className="mb-16 flex justify-center gap-4">
             <Button
               onClick={generateText}
-              className="bg-blue-600 hover:bg-blue-700 gap-2"
+              className="gap-2 bg-blue-600 hover:bg-blue-700"
               size="lg"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="h-4 w-4" />
               Generate now
             </Button>
             <Button
@@ -195,17 +204,17 @@ export default function BrainRotGenerator() {
               size="lg"
               disabled={!generatedText}
             >
-              <Copy className="w-4 h-4" />
+              <Copy className="h-4 w-4" />
               Copy text
             </Button>
           </div>
 
-          <div className="bg-gray-900 rounded-lg p-4 text-left">
+          <div className="rounded-lg bg-gray-900 p-4 text-left">
             <Textarea
               value={generatedText}
               readOnly
               rows={12}
-              className="font-mono text-sm bg-transparent border-0 text-gray-300 focus-visible:ring-0 resize-none"
+              className="font-mono resize-none border-0 bg-transparent text-sm text-gray-300 focus-visible:ring-0"
               placeholder="Your generated text will appear here..."
             />
           </div>
