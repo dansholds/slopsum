@@ -7,8 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Copy, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
-// Helpers
-const PHRASES = Array.from(
+// Helper constants
+const phrases = Array.from(
   new Set([
     "skibidi",
     "rizz",
@@ -80,33 +80,12 @@ const PHRASES = Array.from(
     "toxic",
   ]),
 );
-const ENDINGS = [".", "!", "?"];
-
-const clampInput = (value: number, min = 1, max = 10) =>
-  Math.max(min, Math.min(max, value));
-
-const getRandomItem = <T,>(arr: T[]) =>
-  arr[Math.floor(Math.random() * arr.length)];
-
-const generateSentence = () => {
-  const length = 5 + Math.floor(Math.random() * 10);
-  return (
-    Array.from({ length }, (_, i) => {
-      let word = getRandomItem(PHRASES);
-      if (i === 0) word = word.charAt(0).toUpperCase() + word.slice(1);
-      if (i < length - 1 && Math.random() > 0.7) word += ",";
-      return word;
-    }).join(" ") + getRandomItem(ENDINGS)
-  );
-};
-
-const generateParagraph = (sentences: number) =>
-  Array.from({ length: sentences }, generateSentence).join(" ");
+const endings = [".", "!", "?"];
 
 export default function BrainRotGenerator() {
   const [paragraphs, setParagraphs] = useState(3);
   const [sentencesPerParagraph, setSentencesPerParagraph] = useState(4);
-  const [generatedText, setGeneratedText] = useState("");
+  const [generatedText, setGeneratedText] = useState<any>("");
   const { toast } = useToast();
 
   const generateText = useCallback(() => {
@@ -116,22 +95,24 @@ export default function BrainRotGenerator() {
     setGeneratedText(output);
   }, [paragraphs, sentencesPerParagraph]);
 
-  const copyToClipboard = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(generatedText);
-      toast({
-        title: "Copied to clipboard",
-        description: "The generated text has been copied to your clipboard.",
-        duration: 3000,
+  const copyToClipboard = () => {
+    navigator.clipboard
+      .writeText(generatedText)
+      .then(() => {
+        toast({
+          title: "Copied to clipboard",
+          description: "The generated text has been copied to your clipboard.",
+          duration: 3000,
+        });
+      })
+      .catch(() => {
+        toast({
+          title: "Copy failed",
+          description: "Something went wrong while copying.",
+          variant: "destructive",
+        });
       });
-    } catch {
-      toast({
-        title: "Copy failed",
-        description: "Something went wrong while copying.",
-        variant: "destructive",
-      });
-    }
-  }, [generatedText, toast]);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -226,3 +207,19 @@ export default function BrainRotGenerator() {
     </div>
   );
 }
+
+// Helpers
+const clampInput = (value: number, min = 1, max = 10) =>
+  Math.max(min, Math.min(max, value));
+
+const getRandomItem = <T,>(arr: T[]) =>
+  arr[Math.floor(Math.random() * arr.length)];
+
+const generateSentence = (): any => {
+  const length = 5 + Math.floor(Math.random() * 10);
+  return (
+    Array.from({ length }, (_, i) => {
+      let word = getRandomItem(phrases);
+      if (i === 0) word = word.charAt(0).toUpperCase() + word.slice(1);
+      if (i < length - 1 && Math.random() > 0.7) word += ",";
+      return
