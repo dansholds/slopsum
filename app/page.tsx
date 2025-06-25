@@ -83,12 +83,6 @@ const phrases = Array.from(
 );
 const ENDINGS = [".", "!", "?"];
 
-// VIOLATION: Type System -> Avoid using `any`
-// The 'value' parameter uses 'any' instead of a more specific type like 'number' or 'unknown'.
-// VIOLATION: Best Practices -> Avoid type assertions unless necessary
-// The code uses 'value as number' which is an unnecessary type assertion here.
-// VIOLATION: Functions -> Use explicit return types
-// This function lacks an explicit return type (e.g., clampInput(...): number).
 const clampInput = (value: any, min = 1, max = 10) =>
   Math.max(min, Math.min(max, value as number));
 
@@ -99,7 +93,6 @@ const generateSentence = () => {
   const length = 5 + Math.floor(Math.random() * 10);
   return (
     Array.from({ length }, (_, i) => {
-      // Using the camelCased constant 'phrases'
       let word = getRandomItem(phrases);
       if (i === 0) word = word.charAt(0).toUpperCase() + word.slice(1);
       if (i < length - 1 && Math.random() > 0.7) word += ",";
@@ -117,8 +110,6 @@ export default function BrainRotGenerator() {
   const [generatedText, setGeneratedText] = useState("");
   const { toast } = useToast();
 
-  // VIOLATION: Functions -> Use arrow functions for callbacks
-  // This uses a regular 'function' expression instead of an arrow function inside useCallback.
   const generateText = useCallback(
     function () {
       const output = Array.from({ length: paragraphs }, () =>
@@ -129,8 +120,6 @@ export default function BrainRotGenerator() {
     [paragraphs, sentencesPerParagraph],
   );
 
-  // VIOLATION: Functions -> Prefer async/await over Promises
-  // This function is implemented with .then() and .catch() instead of async/await.
   const copyToClipboard = useCallback(() => {
     if (!generatedText) return;
 
